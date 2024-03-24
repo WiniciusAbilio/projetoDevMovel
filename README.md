@@ -41,7 +41,6 @@ Após isso, clique no ícone de debug do VSCode, crie um arquivo launch.json e c
         "type": "node",
         "request": "attach",
         "name": "Debug do servidor express",
-        "port": 3010,
         "skipFiles": [
             "<node_internals>/**"
         ]
