@@ -31,7 +31,8 @@ Executar o projeto com o debug do VSCode:
 ```bash
 npm run debug
 ```
-Após isso, clique no ícone de debug do VSCode, crie um arquivo launch.json e cole a seguinte configurações:
+Após isso, clique no ícone de debug do VSCode, crie um arquivo launch.json escolha o tipo node e cole a seguinte configurações:
+<span style="color:red;">(Observação: Lembrar de definir breakpoints no código para exibir as informações durante o uso do debug.)</span>
 ```js
 //Configuração do debug do VSCODE para o servidor do express
 {
