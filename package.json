@@ -1,13 +1,14 @@
 {
-  "name": "projeto-dm",
+  "name": "projeto-dev-movel",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "servidor.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node ./servidor/servidor.js",
+    "debug": "node --inspect=3010 ./servidor/servidor.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Winicius Abilio",
+  "license": "MIT",
   "dependencies": {
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
