@@ -14,7 +14,7 @@ Em seguida, modifique a senha padrão para 'password' com o seguinte comando:
 ```sql
 ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
 ```
-### 📦 Instalando as dependências
+#### 📦 Instalando as dependências
 Node:
 ```bash
 npm install
@@ -27,7 +27,7 @@ flutter pub get
 
 
 
-### ⚙️ Executando o projeto
+##### ⚙️ Executando o projeto
 Node:
     Executar o projeto normalmente:
     ```bash
@@ -40,6 +40,7 @@ Node:
     Após isso, clique no ícone de debug do VSCode, crie um arquivo launch.json escolha o tipo node e cole a seguinte configuração:
     
     **(Observação: Lembrar de definir breakpoints no código para exibir as informações durante o uso do debug.)**
+    
     ```js
     //Configuração do debug do VSCODE para o servidor do express
     {
