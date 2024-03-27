@@ -29,39 +29,39 @@ flutter pub get
 
 ###  ⚙️ Executando o projeto
 Node:
-    Executar o projeto normalmente:
-    ```bash
-    npm start
-    ```
-    Executar o projeto com o debug do VSCode:
-    ```bash
-    npm run debug
-    ```
-    Após isso, clique no ícone de debug do VSCode, crie um arquivo launch.json escolha o tipo node e cole a seguinte configuração:
-    **(Observação: Lembrar de definir breakpoints no código para exibir as informações durante o uso do debug.)**
+Executar o projeto normalmente:
+```bash
+npm start
+```
+Executar o projeto com o debug do VSCode:
+```bash
+npm run debug
+```
+Após isso, clique no ícone de debug do VSCode, crie um arquivo launch.json escolha o tipo node e cole a seguinte configuração:
+**(Observação: Lembrar de definir breakpoints no código para exibir as informações durante o uso do debug.)**
     
-    ```js
-    //Configuração do debug do VSCODE para o servidor do express
-    {
-        "version": "0.2.0",
-        "configurations": [
-          {
-            "type": "node",
-            "request": "attach",
-            "name": "Debug do servidor express",
-            "skipFiles": [
-                "<node_internals>/**"
-            ]
-          }
+```js
+//Configuração do debug do VSCODE para o servidor do express
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "node",
+        "request": "attach",
+        "name": "Debug do servidor express",
+        "skipFiles": [
+            "<node_internals>/**"
         ]
       }
-    ```
+    ]
+  }
+```
 Flutter:
-    Para ver quais dispositivos estão disponíveis:
-    ```bash
-    flutter devices
-    ```
-    Escolher e rodar no dispositivo:
-    ```bash
-    flutter run -d (DISPOSITIVO)
-    ```
+Para ver quais dispositivos estão disponíveis:
+```bash
+flutter devices
+```
+Escolher e rodar no dispositivo:
+``` bash
+flutter run -d (DISPOSITIVO)
+```
