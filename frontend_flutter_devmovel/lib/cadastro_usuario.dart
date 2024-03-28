@@ -37,18 +37,18 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.deepPurple, // Define a cor de fundo da barra de navegação
+        backgroundColor: Colors.deepPurple,
         title: Text(
           'Cadastro de Usuário',
-          style: TextStyle(color: Colors.white), // Define a cor do texto como branco
+          style: TextStyle(color: Colors.white),
         ),
-        iconTheme: IconThemeData(color: Colors.white), // Define a cor da flecha de voltar como branco
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Center(
           child: Container(
-            width: MediaQuery.of(context).size.width * 0.8, // Define a largura do Container como 80% da largura da tela
+            width: MediaQuery.of(context).size.width * 0.8,
             child: Form(
               key: _formKey,
               child: Column(
@@ -59,6 +59,7 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
                     decoration: InputDecoration(
                       labelText: 'Nome',
                       border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.person),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -73,6 +74,7 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
                     decoration: InputDecoration(
                       labelText: 'Email',
                       border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.email),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -92,6 +94,7 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
                     decoration: InputDecoration(
                       labelText: 'Senha',
                       border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.lock),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -108,14 +111,14 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple, // Define a cor de fundo do botão como roxa
-                      padding: EdgeInsets.symmetric(vertical: 15), // Define o preenchimento vertical do botão
+                      backgroundColor: Colors.deepPurple,
+                      padding: EdgeInsets.symmetric(vertical: 15),
                     ),
                     child: Text(
                       'Cadastrar',
                       style: TextStyle(
-                        fontSize: 18, // Ajusta o tamanho do texto
-                        color: Colors.white, // Define a cor do texto como branco
+                        fontSize: 18,
+                        color: Colors.white,
                       ),
                     ),
                   ),
