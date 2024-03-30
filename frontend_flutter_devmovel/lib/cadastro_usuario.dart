@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class CadastroUsuarioScreen extends StatefulWidget {
-  const CadastroUsuarioScreen({Key? key}) : super(key: key);
+  const CadastroUsuarioScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _CadastroUsuarioScreenState createState() => _CadastroUsuarioScreenState();
 }
 
@@ -19,36 +20,48 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
     final email = _emailController.text;
     final senha = _senhaController.text;
 
-    final response = await http.post(
-      Uri.parse('http://localhost:3010/api/usuario'),
-      body: {'nome': nome, 'email': email, 'senha': senha},
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('http://localhost:3010/api/usuario'),
+        body: {'nome': nome, 'email': email, 'senha': senha},
+      );
 
-    if (response.statusCode == 200) {
-      // Sucesso
-      print('Usuário cadastrado com sucesso');
-    } else {
-      // Erro
-      print('Erro ao cadastrar usuário: ${response.body}');
+      // Verificar o status da resposta
+      if (response.statusCode == 200) {
+        // Sucesso
+        print('Usuário cadastrado com sucesso');
+      } else {
+        // Erro
+        print('Erro ao cadastrar usuário: ${response.body}');
+      }
+    } catch (e) {
+      // Tratamento de exceções
+      print('Erro durante a solicitação: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.deepPurple,
-        title: Text(
+        title: const Text(
           'Cadastro de Usuário',
           style: TextStyle(color: Colors.white),
         ),
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: EdgeInsets.symmetric(
+          vertical: screenHeight * 0.2,
+          horizontal: screenWidth * 0.1,
+        ),
         child: Center(
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.8,
+          child: SizedBox(
+            width: screenWidth * 0.8,
             child: Form(
               key: _formKey,
               child: Column(
@@ -56,10 +69,11 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
                 children: [
                   TextFormField(
                     controller: _nomeController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Nome',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.person),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 20),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -68,33 +82,36 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
                       return null;
                     },
                   ),
-                  SizedBox(height: 20.0),
+                  SizedBox(height: screenHeight * 0.02),
                   TextFormField(
                     controller: _emailController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Email',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.email),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 20),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Por favor, insira um email';
                       }
-                      final emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                      final emailRegExp =
+                          RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
                       if (!emailRegExp.hasMatch(value)) {
                         return 'Por favor, insira um email válido';
                       }
                       return null;
                     },
                   ),
-                  SizedBox(height: 20.0),
+                  SizedBox(height: screenHeight * 0.02),
                   TextFormField(
                     controller: _senhaController,
                     obscureText: true,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Senha',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.lock),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 20),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -103,7 +120,7 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
                       return null;
                     },
                   ),
-                  SizedBox(height: 20.0),
+                  SizedBox(height: screenHeight * 0.02),
                   ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
@@ -112,9 +129,10 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.deepPurple,
-                      padding: EdgeInsets.symmetric(vertical: 15),
+                      padding:
+                          EdgeInsets.symmetric(vertical: screenHeight * 0.02),
                     ),
-                    child: Text(
+                    child: const Text(
                       'Cadastrar',
                       style: TextStyle(
                         fontSize: 18,

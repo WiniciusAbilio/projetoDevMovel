@@ -7,7 +7,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,16 +27,16 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatelessWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+  const MyHomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.deepPurple, // Define a cor de fundo do AppBar como roxa
-        title: Text(
+        title: const Text(
           'Menu',
-          style: const TextStyle(fontSize: 24, color: Colors.white), // Ajusta o tamanho do texto e a cor para branco
+           style: TextStyle(fontSize: 24, color: Colors.white), // Ajusta o tamanho do texto e a cor para branco
         ),
         iconTheme: const IconThemeData(color: Colors.white), // Define a cor do ícone do menu como branco
         toolbarHeight: 100, // Define a altura da barra de navegação
@@ -44,14 +44,14 @@ class MyHomePage extends StatelessWidget {
       drawer: Drawer(
         child: ListView(
           children: [
-            DrawerHeader(
+            const DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.deepPurple,
               ),
               child: Center(
                 child: Text(
                   'Opções',
-                  style: const TextStyle(fontSize: 24, color: Colors.white), // Ajusta o tamanho do texto e a cor para branco
+                  style: TextStyle(fontSize: 24, color: Colors.white), // Ajusta o tamanho do texto e a cor para branco
                 ),
               ),
             ),
@@ -72,9 +72,9 @@ class MyHomePage extends StatelessWidget {
           ],
         ),
       ),
-      body: Center(
-        child: const Text(
-          'Conteúdo da página',
+      body: const Center(
+        child: Text(
+          'Conteúdo da página!!!',
           style: TextStyle(fontSize: 24),
         ),
       ),
