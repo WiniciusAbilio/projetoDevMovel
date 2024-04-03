@@ -6,12 +6,14 @@ require('dotenv').config({ path: path.resolve(__dirname, '../variaveis.env') });
 
 
 const rotaUsuario = require('./rotas/rotaUsuario');
+const rotaAtividade = require('./rotas/rotaAtividade');
+const rotaUsuarioAtividade = require('./rotas/rotaUsuarioAtividade');
 
 
 const app = express();
 const port = process.env.PORT;
 
-//Rota Padrao ao acessar a localhost:3010 isso será informado
+//Rota Padrão ao acessar a localhost:3010
 app.get('/', (req, res) => {
   res.send('Servidor está rodando!!!!!!!!!');
 });
@@ -22,11 +24,13 @@ app.use(bodyParser.json());
 app.use(cors());
 
 //Rotas do sistema
-app.use(rotaUsuario);//Rota de Usúario
+app.use(rotaUsuario);
+app.use(rotaAtividade);
+app.use(rotaUsuarioAtividade);
 
 
 
-//Rota Padrao ao acessar qualquer rota que nao foi definida isso será informado (OBS: SEMPRE COLOCAR NO FINAL DAS ROTAS JÁ DEFINIDAS)
+//Rota Padrão ao acessar qualquer rota que não foi definida. (OBS: SEMPRE COLOCAR NO FINAL DAS ROTAS JÁ DEFINIDAS)
 app.get('*', (req, res) => {
   res.send(`
     <html>

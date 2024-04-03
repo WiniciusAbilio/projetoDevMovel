@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'cadastro_usuario.dart' as usuario;
 import 'cadastro_atividade.dart' as atividade;
+import 'cadastro_usuario_atividade.dart' as usuario_atividade;
 
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,13 +22,14 @@ class MyApp extends StatelessWidget {
       routes: {
         '/cadastroUsuario': (context) => const usuario.CadastroUsuarioScreen(), // Definindo a rota para a tela de cadastro de usuário
         '/cadastroAtividade': (context) => const atividade.CadastroAtividadeScreen(), // Definindo a rota para a tela de cadastro de atividade
+        '/cadastroUsuarioAtividade': (context) => const usuario_atividade.CadastroUsuarioAtividadeScreen(), // Definindo a rota para a tela de cadastro de usuário atividade
       },
     );
   }
 }
 
 class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key});
+  const MyHomePage({Key? key});
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +69,13 @@ class MyHomePage extends StatelessWidget {
               title: const Text('Cadastrar Atividade'),
               onTap: () {
                 Navigator.pushNamed(context, '/cadastroAtividade'); // Navegar para a tela de cadastro de atividade ao clicar no item do drawer
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.group_add), // Ícone de adicionar usuário atividade
+              title: const Text('Cadastrar Usuário Atividade'),
+              onTap: () {
+                Navigator.pushNamed(context, '/cadastroUsuarioAtividade'); // Navegar para a tela de cadastro de usuário atividade ao clicar no item do drawer
               },
             ),
           ],
