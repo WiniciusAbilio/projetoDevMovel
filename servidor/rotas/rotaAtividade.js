@@ -51,7 +51,7 @@ router.get('/api/atividade/:id', (req, res) => {
 router.post('/api/atividade', (req, res) => {
     try {
         const { titulo, descricao, data } = req.body;
-        const sql = 'INSERT INTO Atividade (TITULO, DESC, DATA) VALUES (?, ?, ?)';
+        const sql = 'INSERT INTO Atividade (TITULO, `DESC`, `DATA`) VALUES (?, ?, ?)';
         conexaoMySql.query(sql, [titulo, descricao, data], (error, resultados) => {
             if (error) {
                 console.error('Erro ao criar nova atividade:', error.sqlMessage);
@@ -72,7 +72,7 @@ router.put('/api/atividade/:id', (req, res) => {
     try {
         const { id } = req.params;
         const { titulo, descricao, data } = req.body;
-        const sql = 'UPDATE Atividade SET TITULO = ?, DESC = ?, DATA = ? WHERE ID_ATIVIDADE = ?';
+        const sql = 'UPDATE Atividade SET TITULO = ?, `DESC` = ?, `DATA` = ? WHERE ID_ATIVIDADE = ?';
         conexaoMySql.query(sql, [titulo, descricao, data, id], (error, resultados) => {
             if (error) {
                 console.error('Erro ao atualizar atividade:', error.sqlMessage);

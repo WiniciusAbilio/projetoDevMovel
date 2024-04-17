@@ -79,7 +79,7 @@ class _CadastroAtividadeScreenState extends State<CadastroAtividadeScreen> {
         body: {
           'titulo': titulo,
           'descricao': descricao,
-          'dataEntrega': dataEntrega
+          'data': dataEntrega
         },
       );
 
