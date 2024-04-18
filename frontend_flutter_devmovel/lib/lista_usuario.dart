@@ -97,7 +97,6 @@ class _ListaUsuarioScreenState extends State<ListaUsuarioScreen> {
 
 void main() {
   runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
     home: ListaUsuarioScreen(),
   ));
 }

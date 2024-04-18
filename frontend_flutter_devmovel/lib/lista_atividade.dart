@@ -4,19 +4,36 @@ import 'dart:convert';
 
 class Atividade {
   final int id;
-  final String titulo;
-  final String descricao;
-  final String data;
+  String titulo;
+  String descricao; // Removido o 'final'
+  DateTime data; // Removido o 'final'
 
-  Atividade({required this.id, required this.titulo, required this.descricao, required this.data});
+  Atividade({
+    required this.id,
+    required this.titulo,
+    required this.descricao,
+    required this.data,
+  });
 
   factory Atividade.fromJson(Map<String, dynamic> json) {
     return Atividade(
       id: json['ID_ATIVIDADE'],
       titulo: json['TITULO'],
       descricao: json['DESC'],
-      data: json['DATA'],
+      data: DateTime.parse(json['DATA']),
     );
+  }
+
+  void atualizarTitulo(String novoTitulo) {
+    this.titulo = novoTitulo;
+  }
+
+  void atualizarDescricao(String novaDescricao) {
+    this.descricao = novaDescricao;
+  }
+
+  void atualizarData(DateTime novaData) {
+    this.data = novaData;
   }
 }
 
@@ -29,6 +46,19 @@ class ListaAtividadeScreen extends StatefulWidget {
 
 class _ListaAtividadeScreenState extends State<ListaAtividadeScreen> {
   late Future<List<Atividade>> _atividades;
+  late Map<int, bool> _isEditing = {};
+
+  void startEditing(int id) {
+    setState(() {
+      _isEditing[id] = true;
+    });
+  }
+
+  void stopEditing(int id) {
+    setState(() {
+      _isEditing[id] = false;
+    });
+  }
 
   Future<List<Atividade>> _getAtividades() async {
     final response = await http.get(Uri.parse('http://localhost:3010/api/atividade'));
@@ -44,6 +74,47 @@ class _ListaAtividadeScreenState extends State<ListaAtividadeScreen> {
   void initState() {
     super.initState();
     _atividades = _getAtividades();
+  }
+
+  void editarAtividade(Atividade atividade) {
+    startEditing(atividade.id);
+  }
+
+  void removerAtividade(int id) async {
+    final response = await http.delete(Uri.parse('http://localhost:3010/api/atividade/$id'));
+    if (response.statusCode == 200) {
+      setState(() {
+        _atividades = _getAtividades();
+      });
+      print('Atividade removida com sucesso');
+    } else {
+      print('Erro ao remover atividade');
+    }
+  }
+
+  void salvarEdicao(Atividade atividade) async {
+    print('Salvando edição da atividade ${atividade.id}');
+
+    final Uri uri = Uri.parse('http://localhost:3010/api/atividade/${atividade.id}');
+    final Map<String, String> headers = {'Content-Type': 'application/json'};
+    final Map<String, dynamic> body = {
+      'titulo': atividade.titulo,
+      'descricao': atividade.descricao,
+      'data': '${atividade.data.year}-${atividade.data.month.toString().padLeft(2, '0')}-${atividade.data.day.toString().padLeft(2, '0')} ${atividade.data.hour.toString().padLeft(2, '0')}:${atividade.data.minute.toString().padLeft(2, '0')}:${atividade.data.second.toString().padLeft(2, '0')}',
+    };
+
+
+    try {
+      final response = await http.put(uri, headers: headers, body: json.encode(body));
+      if (response.statusCode == 200) {
+        print('Dados da atividade atualizados com sucesso');
+        stopEditing(atividade.id);
+      } else {
+        print('Falha ao atualizar dados da atividade');
+      }
+    } catch (error) {
+      print('Erro ao fazer requisição PUT: $error');
+    }
   }
 
   @override
@@ -80,19 +151,15 @@ class _ListaAtividadeScreenState extends State<ListaAtividadeScreen> {
               return ListView.builder(
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
+                  final atividade = snapshot.data![index];
+                  final isEditing = _isEditing.containsKey(atividade.id) && _isEditing[atividade.id] == true;
+
                   return Card(
                     elevation: 3,
                     margin: EdgeInsets.symmetric(vertical: 10),
-                    child: ListTile(
-                      title: Text(snapshot.data![index].titulo),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(snapshot.data![index].descricao),
-                          Text('Data: ${snapshot.data![index].data}'),
-                        ],
-                      ),
-                    ),
+                    child: isEditing
+                        ? _buildEditableAtividade(atividade)
+                        : _buildStaticAtividade(atividade),
                   );
                 },
               );
@@ -104,6 +171,88 @@ class _ListaAtividadeScreenState extends State<ListaAtividadeScreen> {
           },
         ),
       ),
+    );
+  }
+
+  Widget _buildStaticAtividade(Atividade atividade) {
+    return ListTile(
+      title: Text(atividade.titulo),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(atividade.descricao),
+          Text('Data: ${atividade.data}'),
+        ],
+      ),
+      trailing: Wrap(
+        spacing: 8,
+        children: [
+          IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: () {
+              editarAtividade(atividade);
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () {
+              removerAtividade(atividade.id);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEditableAtividade(Atividade atividade) {
+    TextEditingController tituloController = TextEditingController(text: atividade.titulo);
+    TextEditingController descricaoController = TextEditingController(text: atividade.descricao);
+    TextEditingController dataController = TextEditingController(text: atividade.data.toIso8601String());
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextFormField(
+          controller: tituloController,
+          decoration: InputDecoration(labelText: 'Título'),
+          onChanged: (value) {
+            atividade.atualizarTitulo(value);
+          },
+        ),
+        TextFormField(
+          controller: descricaoController,
+          decoration: InputDecoration(labelText: 'Descrição'),
+          onChanged: (value) {
+            atividade.atualizarDescricao(value);
+          },
+        ),
+        TextFormField(
+          controller: dataController,
+          decoration: InputDecoration(labelText: 'Data'),
+          onChanged: (value) {
+            atividade.atualizarData(DateTime.parse(value));
+          },
+        ),
+        SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                salvarEdicao(atividade);
+              },
+              child: Text('Salvar'),
+            ),
+            SizedBox(width: 8),
+            TextButton(
+              onPressed: () {
+                stopEditing(atividade.id);
+              },
+              child: Text('Cancelar'),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

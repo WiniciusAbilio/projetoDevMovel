@@ -91,6 +91,7 @@ router.put('/api/atividade/:id', (req, res) => {
     }
 });
 
+
 // Rota para excluir uma atividade
 router.delete('/api/atividade/:id', (req, res) => {
     try {
