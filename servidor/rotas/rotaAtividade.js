@@ -5,11 +5,11 @@ const conexaoMySql = require('../conexaoMySQL.js');
 // Rota para buscar todas as atividades
 router.get('/api/atividade', (req, res) => {
     try {
-        // Query SQL para buscar todas as atividades
-        const sql = 'SELECT * FROM Atividade';
-
-        // Executa a query
-        conexaoMySql.query(sql, (error, resultados, campos) => {
+        // Query SQL para buscar todas as atividades não canceladas
+        const sql = 'SELECT * FROM Atividade WHERE CANCELADO = ?';
+        
+        // Definindo 'CANCELADO' como 'F' para buscar apenas atividades não canceladas
+        conexaoMySql.query(sql, ['F'], (error, resultados, campos) => {
             if (error) {
                 console.error('Erro ao buscar atividades:', error.sqlMessage);
                 res.status(500).json({ erro: error.sqlMessage });
@@ -23,6 +23,7 @@ router.get('/api/atividade', (req, res) => {
         res.status(500).send('Erro ao processar requisição');
     }
 });
+
 
 // Rota para buscar uma atividade pelo ID
 router.get('/api/atividade/:id', (req, res) => {
@@ -51,8 +52,10 @@ router.get('/api/atividade/:id', (req, res) => {
 router.post('/api/atividade', (req, res) => {
     try {
         const { titulo, descricao, data } = req.body;
-        const sql = 'INSERT INTO Atividade (TITULO, `DESC`, `DATA`) VALUES (?, ?, ?)';
-        conexaoMySql.query(sql, [titulo, descricao, data], (error, resultados) => {
+        // Modificando a query para incluir o valor 'F' para o campo CANCELADO
+        const sql = 'INSERT INTO Atividade (TITULO, `DESC`, `DATA`, CANCELADO) VALUES (?, ?, ?, ?)';
+        // Definindo 'CANCELADO' como 'F'
+        conexaoMySql.query(sql, [titulo, descricao, data, 'F'], (error, resultados) => {
             if (error) {
                 console.error('Erro ao criar nova atividade:', error.sqlMessage);
                 res.status(500).json({ erro: error.sqlMessage });
@@ -67,12 +70,15 @@ router.post('/api/atividade', (req, res) => {
     }
 });
 
+
 // Rota para atualizar os dados de uma atividade
 router.put('/api/atividade/:id', (req, res) => {
     try {
         const { id } = req.params;
         const { titulo, descricao, data } = req.body;
+        // Modificando a query para atualizar o campo CANCELADO como 'F'
         const sql = 'UPDATE Atividade SET TITULO = ?, `DESC` = ?, `DATA` = ? WHERE ID_ATIVIDADE = ?';
+        // Definindo 'CANCELADO' como 'F'
         conexaoMySql.query(sql, [titulo, descricao, data, id], (error, resultados) => {
             if (error) {
                 console.error('Erro ao atualizar atividade:', error.sqlMessage);
@@ -92,12 +98,14 @@ router.put('/api/atividade/:id', (req, res) => {
 });
 
 
+
 // Rota para excluir uma atividade
 router.delete('/api/atividade/:id', (req, res) => {
     try {
         const { id } = req.params;
-        const sql = 'DELETE FROM Atividade WHERE ID_ATIVIDADE = ?';
-        conexaoMySql.query(sql, [id], (error, resultados) => {
+        const sql = 'UPDATE Atividade SET CANCELADO = ? WHERE ID_ATIVIDADE = ?';
+        // Definindo 'CANCELADO' como 'T'
+        conexaoMySql.query(sql, ['T', id], (error, resultados) => {
             if (error) {
                 console.error('Erro ao excluir atividade:', error.sqlMessage);
                 res.status(500).json({ erro: error.sqlMessage });

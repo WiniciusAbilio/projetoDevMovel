@@ -46,7 +46,7 @@ class ListaAtividadeScreen extends StatefulWidget {
 
 class _ListaAtividadeScreenState extends State<ListaAtividadeScreen> {
   late Future<List<Atividade>> _atividades;
-  late Map<int, bool> _isEditing = {};
+  late final Map<int, bool> _isEditing = {};
 
   void startEditing(int id) {
     setState(() {
@@ -58,6 +58,7 @@ class _ListaAtividadeScreenState extends State<ListaAtividadeScreen> {
     setState(() {
       _isEditing[id] = false;
     });
+    _atividades = _getAtividades(); // Atualiza a lista de atividades ao cancelar a edição
   }
 
   Future<List<Atividade>> _getAtividades() async {
@@ -103,11 +104,13 @@ class _ListaAtividadeScreenState extends State<ListaAtividadeScreen> {
       'data': '${atividade.data.year}-${atividade.data.month.toString().padLeft(2, '0')}-${atividade.data.day.toString().padLeft(2, '0')} ${atividade.data.hour.toString().padLeft(2, '0')}:${atividade.data.minute.toString().padLeft(2, '0')}:${atividade.data.second.toString().padLeft(2, '0')}',
     };
 
-
     try {
       final response = await http.put(uri, headers: headers, body: json.encode(body));
       if (response.statusCode == 200) {
         print('Dados da atividade atualizados com sucesso');
+        setState(() {
+          _atividades = _getAtividades(); // Atualiza a lista de atividades
+        });
         stopEditing(atividade.id);
       } else {
         print('Falha ao atualizar dados da atividade');

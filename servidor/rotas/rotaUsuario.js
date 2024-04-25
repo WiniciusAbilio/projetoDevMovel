@@ -2,14 +2,14 @@ const express = require('express');
 const router = express.Router();
 const conexaoMySql = require('../conexaoMySQL.js');
 
-// Rota para buscar todos os usuários
+// Rota para buscar todos os usuários não cancelados
 router.get('/api/usuario', (req, res) => {
     try {
-        // Query SQL para buscar todos os usuários
-        const sql = 'SELECT * FROM Usuario';
+        // Query SQL para buscar todos os usuários não cancelados
+        const sql = 'SELECT * FROM Usuario WHERE CANCELADO = ?';
 
-        // Executa a query
-        conexaoMySql.query(sql, (error, resultados, campos) => {
+        // Definindo 'CANCELADO' como 'F' para buscar apenas usuários não cancelados
+        conexaoMySql.query(sql, ['F'], (error, resultados, campos) => {
             if (error) {
                 console.error('Erro ao buscar usuários:', error.sqlMessage);
                 res.status(500).json({ erro: error.sqlMessage });
@@ -29,7 +29,7 @@ router.get('/api/usuario/:id', (req, res) => {
     try {
         const { id } = req.params;
         const sql = 'SELECT * FROM Usuario WHERE ID_USUARIO = ?';
-        conexaoMySql.query(sql, [id], (error, resultados) => {
+        conexaoMySql.query(sql, id, (error, resultados) => {
             if (error) {
                 console.error('Erro ao buscar usuário:', error.sqlMessage);
                 res.status(500).json({ erro: error.sqlMessage });
@@ -51,8 +51,8 @@ router.get('/api/usuario/:id', (req, res) => {
 router.post('/api/usuario', (req, res) => {
     try {
         const { nome, email, senha } = req.body;
-        const sql = 'INSERT INTO Usuario (NOME, EMAIL, SENHA) VALUES (?, ?, ?)';
-        conexaoMySql.query(sql, [nome, email, senha], (error, resultados) => {
+        const sql = 'INSERT INTO Usuario (NOME, EMAIL, SENHA, CANCELADO) VALUES (?, ?, ?, ?)';
+        conexaoMySql.query(sql, [nome, email, senha, 'F'], (error, resultados) => {
             if (error) {
                 console.error('Erro ao criar novo usuário:', error.sqlMessage);
                 res.status(500).json({ erro: error.sqlMessage });
@@ -95,8 +95,9 @@ router.put('/api/usuario/:id', (req, res) => {
 router.delete('/api/usuario/:id', (req, res) => {
     try {
         const { id } = req.params;
-        const sql = 'DELETE FROM Usuario WHERE ID_USUARIO = ?';
-        conexaoMySql.query(sql, [id], (error, resultados) => {
+        const sql = 'UPDATE Usuario SET CANCELADO = ? WHERE ID_USUARIO = ?';
+        // Definindo 'CANCELADO' como 'T'
+        conexaoMySql.query(sql, ['T', id], (error, resultados) => {
             if (error) {
                 console.error('Erro ao excluir usuário:', error.sqlMessage);
                 res.status(500).json({ erro: error.sqlMessage });
