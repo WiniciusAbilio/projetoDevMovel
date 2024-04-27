@@ -5,8 +5,8 @@ import 'dart:convert';
 class Atividade {
   final int id;
   String titulo;
-  String descricao; // Removido o 'final'
-  DateTime data; // Removido o 'final'
+  String descricao;
+  DateTime data;
 
   Atividade({
     required this.id,
@@ -58,11 +58,13 @@ class _ListaAtividadeScreenState extends State<ListaAtividadeScreen> {
     setState(() {
       _isEditing[id] = false;
     });
-    _atividades = _getAtividades(); // Atualiza a lista de atividades ao cancelar a edição
+    _atividades =
+        _getAtividades(); // Atualiza a lista de atividades ao cancelar a edição
   }
 
   Future<List<Atividade>> _getAtividades() async {
-    final response = await http.get(Uri.parse('http://localhost:3010/api/atividade'));
+    final response =
+        await http.get(Uri.parse('http://localhost:3010/api/atividade'));
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = json.decode(response.body);
       return jsonResponse.map((data) => Atividade.fromJson(data)).toList();
@@ -81,42 +83,73 @@ class _ListaAtividadeScreenState extends State<ListaAtividadeScreen> {
     startEditing(atividade.id);
   }
 
+  void _showSnackBarMessage(String message,
+      {Color backgroundColor = Colors.red}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: backgroundColor,
+      ),
+    );
+  }
+
   void removerAtividade(int id) async {
-    final response = await http.delete(Uri.parse('http://localhost:3010/api/atividade/$id'));
-    if (response.statusCode == 200) {
-      setState(() {
-        _atividades = _getAtividades();
-      });
-      print('Atividade removida com sucesso');
-    } else {
-      print('Erro ao remover atividade');
+    try {
+      final response = await http
+          .delete(Uri.parse('http://localhost:3010/api/atividade/$id'));
+      if (response.statusCode == 200) {
+        setState(() {
+          _atividades = _getAtividades();
+        });
+        _showSnackBarMessage('Atividade removida com sucesso',
+            backgroundColor: Colors.green);
+      } else {
+        _showSnackBarMessage('Erro ao remover atividade');
+      }
+    } catch (error) {
+      print('Erro ao fazer requisição DELETE: $error');
+      _showSnackBarMessage('Erro ao fazer requisição DELETE');
     }
   }
 
   void salvarEdicao(Atividade atividade) async {
     print('Salvando edição da atividade ${atividade.id}');
 
-    final Uri uri = Uri.parse('http://localhost:3010/api/atividade/${atividade.id}');
+    final Uri uri =
+        Uri.parse('http://localhost:3010/api/atividade/${atividade.id}');
     final Map<String, String> headers = {'Content-Type': 'application/json'};
     final Map<String, dynamic> body = {
       'titulo': atividade.titulo,
       'descricao': atividade.descricao,
-      'data': '${atividade.data.year}-${atividade.data.month.toString().padLeft(2, '0')}-${atividade.data.day.toString().padLeft(2, '0')} ${atividade.data.hour.toString().padLeft(2, '0')}:${atividade.data.minute.toString().padLeft(2, '0')}:${atividade.data.second.toString().padLeft(2, '0')}',
+      'data':
+          '${atividade.data.year}-${atividade.data.month.toString().padLeft(2, '0')}-${atividade.data.day.toString().padLeft(2, '0')} ${atividade.data.hour.toString().padLeft(2, '0')}:${atividade.data.minute.toString().padLeft(2, '0')}:${atividade.data.second.toString().padLeft(2, '0')}',
     };
 
     try {
-      final response = await http.put(uri, headers: headers, body: json.encode(body));
+      final response =
+          await http.put(uri, headers: headers, body: json.encode(body));
       if (response.statusCode == 200) {
         print('Dados da atividade atualizados com sucesso');
         setState(() {
           _atividades = _getAtividades(); // Atualiza a lista de atividades
         });
         stopEditing(atividade.id);
+        _showSnackBarMessage('Dados da atividade atualizados com sucesso',
+            backgroundColor:
+                Colors.green); // Chamada da função _showSnackBarMessage
       } else {
-        print('Falha ao atualizar dados da atividade');
+        final dynamic responseData = json.decode(response.body);
+        final String errorMessage = responseData['message'];
+        print('Falha ao atualizar dados da atividade: $errorMessage');
+        _showSnackBarMessage(errorMessage,
+            backgroundColor:
+                Colors.red); // Chamada da função _showSnackBarMessage
       }
     } catch (error) {
       print('Erro ao fazer requisição PUT: $error');
+      _showSnackBarMessage('Erro ao fazer requisição PUT',
+          backgroundColor:
+              Colors.red); // Chamada da função _showSnackBarMessage
     }
   }
 
@@ -155,7 +188,8 @@ class _ListaAtividadeScreenState extends State<ListaAtividadeScreen> {
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
                   final atividade = snapshot.data![index];
-                  final isEditing = _isEditing.containsKey(atividade.id) && _isEditing[atividade.id] == true;
+                  final isEditing = _isEditing.containsKey(atividade.id) &&
+                      _isEditing[atividade.id] == true;
 
                   return Card(
                     elevation: 3,
@@ -208,9 +242,12 @@ class _ListaAtividadeScreenState extends State<ListaAtividadeScreen> {
   }
 
   Widget _buildEditableAtividade(Atividade atividade) {
-    TextEditingController tituloController = TextEditingController(text: atividade.titulo);
-    TextEditingController descricaoController = TextEditingController(text: atividade.descricao);
-    TextEditingController dataController = TextEditingController(text: atividade.data.toIso8601String());
+    TextEditingController tituloController =
+        TextEditingController(text: atividade.titulo);
+    TextEditingController descricaoController =
+        TextEditingController(text: atividade.descricao);
+    TextEditingController dataController =
+        TextEditingController(text: atividade.data.toIso8601String());
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -229,12 +266,68 @@ class _ListaAtividadeScreenState extends State<ListaAtividadeScreen> {
             atividade.atualizarDescricao(value);
           },
         ),
-        TextFormField(
-          controller: dataController,
-          decoration: InputDecoration(labelText: 'Data'),
-          onChanged: (value) {
-            atividade.atualizarData(DateTime.parse(value));
+        TextButton(
+          onPressed: () async {
+            final selectedDate = await showDialog<DateTime>(
+              context: context,
+              builder: (context) {
+                DateTime selectedDate = atividade.data;
+                return AlertDialog(
+                  title: Text('Selecione a data'),
+                  content: SizedBox(
+                    width: 200,
+                    height: 200,
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: StatefulBuilder(
+                            builder:
+                                (BuildContext context, StateSetter setState) {
+                              return CalendarDatePicker(
+                                initialDate: atividade.data,
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2100),
+                                onDateChanged: (date) {
+                                  setState(() {
+                                    selectedDate = date;
+                                  });
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context, selectedDate);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.deepPurple,
+                          ),
+                          child: Text(
+                            'Selecionar',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+
+            if (selectedDate != null) {
+              setState(() {
+                atividade.atualizarData(selectedDate);
+                dataController.text = selectedDate
+                    .toString(); // Exemplo de formatação simples, pode ser ajustado conforme necessário
+              });
+            }
           },
+          child: Text(
+            'Data: ${atividade.data.day}/${atividade.data.month}/${atividade.data.year}',
+            style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
+          ),
         ),
         SizedBox(height: 16),
         Row(
@@ -244,6 +337,10 @@ class _ListaAtividadeScreenState extends State<ListaAtividadeScreen> {
               onPressed: () {
                 salvarEdicao(atividade);
               },
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Color.fromARGB(255, 34, 221, 9),
+              ),
               child: Text('Salvar'),
             ),
             SizedBox(width: 8),
@@ -251,7 +348,11 @@ class _ListaAtividadeScreenState extends State<ListaAtividadeScreen> {
               onPressed: () {
                 stopEditing(atividade.id);
               },
-              child: Text('Cancelar'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Color.fromARGB(255, 207, 9, 9),
+              ),
+              child: Text('Cancelar', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
