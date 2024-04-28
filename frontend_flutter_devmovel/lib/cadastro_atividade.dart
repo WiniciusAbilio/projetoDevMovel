@@ -70,7 +70,7 @@ class _CadastroAtividadeScreenState extends State<CadastroAtividadeScreen> {
     });
   }
 
-    void _showSnackBarMessage(BuildContext context, String message,
+  void _showSnackBarMessage(BuildContext context, String message,
       {Color backgroundColor = Colors.red}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -113,7 +113,6 @@ class _CadastroAtividadeScreenState extends State<CadastroAtividadeScreen> {
       print(errorMessage);
     }
   }
-
 
   @override
   Widget build(BuildContext context) {

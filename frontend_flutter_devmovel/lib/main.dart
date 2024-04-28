@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:html' as html;
-
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'cadastro_usuario.dart' as usuario;

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:html' as html;
+import 'package:crypto/crypto.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -33,14 +34,26 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  String hashPassword(String password) {
+    // Cria um hash SHA-256 do password
+    var bytes = utf8.encode(password); // Converte a senha para bytes
+    var digest = sha256.convert(bytes); // Calcula o hash
+
+    // Retorna o hash como uma string hexadecimal
+    return digest.toString();
+  }
+
   Future<void> _realizarLogin() async {
     final email = _emailController.text;
     final senha = _senhaController.text;
 
+    // Calcular o hash da senha usando o algoritmo SHA-256
+    String hashedPassword = hashPassword(senha);
+
     try {
       final response = await http.post(
         Uri.parse('http://localhost:3010/api/login'),
-        body: {'email': email, 'senha': senha},
+        body: {'email': email, 'senha': hashedPassword},
       );
 
       final jsonResponse = json.decode(response.body);

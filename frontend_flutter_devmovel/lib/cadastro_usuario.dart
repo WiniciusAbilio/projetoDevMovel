@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -20,8 +20,6 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
 
   bool _obscurePassword = true; // To toggle password visibility
 
-    
-    
   void _togglePasswordVisibility() {
     setState(() {
       _obscurePassword = !_obscurePassword;
@@ -38,6 +36,15 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
     );
   }
 
+  String hashPassword(String password) {
+    // Cria um hash SHA-256 do password
+    var bytes = utf8.encode(password); // Converte a senha para bytes
+    var digest = sha256.convert(bytes); // Calcula o hash
+
+    // Retorna o hash como uma string hexadecimal
+    return digest.toString();
+  }
+
   Future<void> _cadastrarUsuario() async {
     final nome = _nomeController.text;
     final email = _emailController.text;
@@ -49,10 +56,12 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
       return;
     }
 
+    String hashedPassword = hashPassword(senha);
+
     try {
       final response = await http.post(
         Uri.parse('http://localhost:3010/api/usuario'),
-        body: {'nome': nome, 'email': email, 'senha': senha},
+        body: {'nome': nome, 'email': email, 'senha': hashedPassword},
       );
 
       final jsonResponse = json.decode(response.body);

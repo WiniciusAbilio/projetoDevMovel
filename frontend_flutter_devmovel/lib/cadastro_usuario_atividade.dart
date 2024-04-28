@@ -66,7 +66,6 @@ class _CadastroUsuarioAtividadeScreenState
     );
   }
 
-
   Future<void> _vincularUsuarioAtividade() async {
     if (_formKey.currentState!.validate()) {
       try {
@@ -80,22 +79,24 @@ class _CadastroUsuarioAtividadeScreenState
           },
         );
 
-       final jsonResponse = json.decode(response.body);
+        final jsonResponse = json.decode(response.body);
 
-      // Verificar o status da resposta
-      if (response.statusCode == 200) {
-        final message = jsonResponse['message'] as String;
-        print('Usuário vinculado à atividade com sucesso');
-        _showSnackBarMessage(context, message, backgroundColor: Colors.green);
-      } else {
-        final errorMessage = jsonResponse['erro'] as String;
-        print('Erro ao vincular usuário à atividade: $errorMessage');
-        _showSnackBarMessage(context, errorMessage, backgroundColor: Colors.red);
+        // Verificar o status da resposta
+        if (response.statusCode == 200) {
+          final message = jsonResponse['message'] as String;
+          print('Usuário vinculado à atividade com sucesso');
+          _showSnackBarMessage(context, message, backgroundColor: Colors.green);
+        } else {
+          final errorMessage = jsonResponse['erro'] as String;
+          print('Erro ao vincular usuário à atividade: $errorMessage');
+          _showSnackBarMessage(context, errorMessage,
+              backgroundColor: Colors.red);
+        }
+      } catch (e) {
+        print('Erro durante a solicitação: $e');
+        _showSnackBarMessage(context, 'Erro durante a solicitação: $e',
+            backgroundColor: Colors.red);
       }
-    } catch (e) {
-      print('Erro durante a solicitação: $e');
-      _showSnackBarMessage(context, 'Erro durante a solicitação: $e', backgroundColor: Colors.red);
-    }
     }
   }
 
@@ -235,7 +236,8 @@ class _CadastroUsuarioAtividadeScreenState
                     onPressed: _vincularUsuarioAtividade,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.deepPurple,
-                      padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
+                      padding:
+                          EdgeInsets.symmetric(vertical: screenHeight * 0.02),
                     ),
                     child: const Text(
                       'Cadastrar',
