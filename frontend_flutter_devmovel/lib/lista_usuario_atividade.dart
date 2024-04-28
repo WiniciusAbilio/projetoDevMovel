@@ -47,15 +47,17 @@ class _ListaUsuarioAtividadeScreenState
   late Future<List<UsuarioAtividade>> _usuariosAtividades;
   late final Map<int, bool> _isEditing = {};
 
-  void startEditing(int id) {
+  void startEditing(int idUsuario, int idAtividade) {
     setState(() {
-      _isEditing[id] = true;
+      final idConcatenado = int.parse("$idUsuario$idAtividade");
+      _isEditing[idConcatenado] = true;
     });
   }
 
-  void stopEditing(int id) {
+  void stopEditing(int idUsuario, int idAtividade) {
     setState(() {
-      _isEditing[id] = false;
+      final idConcatenado = int.parse("$idUsuario$idAtividade");
+      _isEditing[idConcatenado] = false;
     });
     _usuariosAtividades =
         _getUsuariosAtividades(); // Atualiza a lista de atividades ao cancelar a edição
@@ -81,7 +83,7 @@ class _ListaUsuarioAtividadeScreenState
   }
 
   void editarUsuarioAtividade(UsuarioAtividade usuarioAtividade) {
-    startEditing(usuarioAtividade.idUsuario);
+    startEditing(usuarioAtividade.idUsuario, usuarioAtividade.idAtividade);
   }
 
   void _showSnackBarMessage(String message,
@@ -96,8 +98,8 @@ class _ListaUsuarioAtividadeScreenState
 
   void removerUsuarioAtividade(int idUsuario, int idAtividade) async {
     try {
-      final response = await http
-          .delete(Uri.parse('http://localhost:3010/api/usuario_atividade/$idUsuario/$idAtividade'));
+      final response = await http.delete(Uri.parse(
+          'http://localhost:3010/api/usuario_atividade/$idUsuario/$idAtividade'));
       if (response.statusCode == 200) {
         setState(() {
           _usuariosAtividades = _getUsuariosAtividades();
@@ -114,13 +116,18 @@ class _ListaUsuarioAtividadeScreenState
   }
 
   void salvarEdicao(UsuarioAtividade usuarioAtividade) async {
-    print('Salvando edição do usuário e atividade ${usuarioAtividade.idUsuario} - ${usuarioAtividade.idAtividade}');
+    print(
+        'Salvando edição do usuário e atividade ${usuarioAtividade.idUsuario} - ${usuarioAtividade.idAtividade}');
 
+    DateTime dataEntrega = DateTime.parse(usuarioAtividade.dataEntrega);
+    // Formatar a data no formato esperado pelo servidor
+    final String formattedDate =
+        '${dataEntrega.year}-${dataEntrega.month.toString().padLeft(2, '0')}-${dataEntrega.day.toString().padLeft(2, '0')}';
     final Uri uri = Uri.parse(
         'http://localhost:3010/api/usuario_atividade/${usuarioAtividade.idUsuario}/${usuarioAtividade.idAtividade}');
     final Map<String, String> headers = {'Content-Type': 'application/json'};
     final Map<String, dynamic> body = {
-      'dataEntrega': usuarioAtividade.dataEntrega,
+      'dataEntrega': formattedDate, // Data formatada
       'nota': usuarioAtividade.nota,
     };
 
@@ -133,7 +140,7 @@ class _ListaUsuarioAtividadeScreenState
           _usuariosAtividades =
               _getUsuariosAtividades(); // Atualiza a lista de usuários
         });
-        stopEditing(usuarioAtividade.idUsuario);
+        stopEditing(usuarioAtividade.idUsuario, usuarioAtividade.idAtividade);
         _showSnackBarMessage('Dados do usuário atualizados com sucesso',
             backgroundColor: Colors.green);
       } else {
@@ -176,15 +183,18 @@ class _ListaUsuarioAtividadeScreenState
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
                   final usuarioAtividade = snapshot.data![index];
-                  final isEditing = _isEditing.containsKey(usuarioAtividade) &&
-                      _isEditing[usuarioAtividade] == true;
+                  final idConcatenado = int.parse(
+                      "${usuarioAtividade.idUsuario}${usuarioAtividade.idAtividade}");
+
+                  final isEditing = _isEditing.containsKey(idConcatenado) &&
+                      _isEditing[idConcatenado] == true;
 
                   return Card(
                     elevation: 3,
                     margin: EdgeInsets.symmetric(vertical: 10),
                     child: isEditing
-                        ? _buildEditableUsuario(usuarioAtividade)
-                        : _buildStaticUsuario(usuarioAtividade),
+                        ? _buildEditableUsuarioAtividade(usuarioAtividade)
+                        : _buildStaticUsuarioAtividade(usuarioAtividade),
                   );
                 },
               );
@@ -202,7 +212,7 @@ class _ListaUsuarioAtividadeScreenState
     );
   }
 
-  Widget _buildStaticUsuario(UsuarioAtividade usuarioAtividade) {
+  Widget _buildStaticUsuarioAtividade(UsuarioAtividade usuarioAtividade) {
     // Converter a data de entrega para um objeto DateTime
     DateTime dataEntrega = DateTime.parse(usuarioAtividade.dataEntrega);
 
@@ -227,7 +237,8 @@ class _ListaUsuarioAtividadeScreenState
           IconButton(
             icon: Icon(Icons.delete),
             onPressed: () {
-              removerUsuarioAtividade(usuarioAtividade.idUsuario, usuarioAtividade.idAtividade);
+              removerUsuarioAtividade(
+                  usuarioAtividade.idUsuario, usuarioAtividade.idAtividade);
             },
           ),
         ],
@@ -235,23 +246,40 @@ class _ListaUsuarioAtividadeScreenState
     );
   }
 
-  Widget _buildEditableUsuario(UsuarioAtividade usuarioAtividade) {
-    TextEditingController dataEntregaController =
-        TextEditingController(text: usuarioAtividade.dataEntrega);
+  Widget _buildEditableUsuarioAtividade(UsuarioAtividade usuarioAtividade) {
     TextEditingController notaController =
         TextEditingController(text: usuarioAtividade.nota.toString());
 
+    DateTime dataEntrega = DateTime.parse(usuarioAtividade
+        .dataEntrega); // Convertendo a string em um objeto DateTime
+
     return Form(
-      key: _formKey, // Define the form key
+      key: _formKey, // Define a chave do formulário
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextFormField(
-            controller: dataEntregaController,
-            decoration: InputDecoration(labelText: 'Data de Entrega'),
-            onChanged: (value) {
-              usuarioAtividade.atualizarDataEntrega(value);
+          // Botão para exibir a data de entrega
+          TextButton(
+            onPressed: () async {
+              final DateTime? pickedDate = await showDatePicker(
+                context: context,
+                initialDate: dataEntrega,
+                firstDate: DateTime(2000),
+                lastDate: DateTime(2101),
+              );
+              // Atualiza a data de entrega se uma nova data for selecionada
+              if (pickedDate != null) {
+                setState(() {
+                  dataEntrega = pickedDate;
+                  usuarioAtividade
+                      .atualizarDataEntrega(dataEntrega.toIso8601String());
+                });
+              }
             },
+            child: Text(
+              'Data de Entrega: ${dataEntrega.day.toString().padLeft(2, '0')}/${dataEntrega.month.toString().padLeft(2, '0')}/${dataEntrega.year}',
+              style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
+            ),
           ),
           TextFormField(
             controller: notaController,
@@ -263,7 +291,7 @@ class _ListaUsuarioAtividadeScreenState
               if (value == null || value.isEmpty) {
                 return 'Por favor, insira uma nota';
               }
-              // Additional validation can be performed here
+              // Validações adicionais podem ser realizadas aqui
               return null;
             },
           ),
@@ -274,7 +302,7 @@ class _ListaUsuarioAtividadeScreenState
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    // Perform the saving logic here
+                    // Execute a lógica de salvamento aqui
                     salvarEdicao(usuarioAtividade);
                   }
                 },
@@ -287,7 +315,8 @@ class _ListaUsuarioAtividadeScreenState
               SizedBox(width: 8),
               TextButton(
                 onPressed: () {
-                  stopEditing(usuarioAtividade.idUsuario);
+                  stopEditing(
+                      usuarioAtividade.idUsuario, usuarioAtividade.idAtividade);
                 },
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,

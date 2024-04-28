@@ -1,27 +1,22 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:html' as html;
 
-class CadastroUsuarioScreen extends StatefulWidget {
-  const CadastroUsuarioScreen({Key? key}) : super(key: key);
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({Key? key}) : super(key: key);
 
   @override
-  _CadastroUsuarioScreenState createState() => _CadastroUsuarioScreenState();
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
-class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
+class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nomeController = TextEditingController();
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
-  final _confirmSenhaController =
-      TextEditingController(); // New controller for confirm password
 
-  bool _obscurePassword = true; // To toggle password visibility
+  bool _obscurePassword = true;
 
-    
-    
   void _togglePasswordVisibility() {
     setState(() {
       _obscurePassword = !_obscurePassword;
@@ -38,33 +33,32 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
     );
   }
 
-  Future<void> _cadastrarUsuario() async {
-    final nome = _nomeController.text;
+  Future<void> _realizarLogin() async {
     final email = _emailController.text;
     final senha = _senhaController.text;
-    final confirmSenha = _confirmSenhaController.text;
-
-    if (senha != confirmSenha) {
-      _showSnackBarMessage(context, "As senhas não coincidem");
-      return;
-    }
 
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:3010/api/usuario'),
-        body: {'nome': nome, 'email': email, 'senha': senha},
+        Uri.parse('http://localhost:3010/api/login'),
+        body: {'email': email, 'senha': senha},
       );
 
       final jsonResponse = json.decode(response.body);
-
-      // Verificar o status da resposta
       if (response.statusCode == 200) {
+        final token = jsonResponse['token']
+            as String; // Obtenha o token JWT do JSON de resposta
+
+        // Salve o token JWT no localStorage
+        html.window.localStorage['token'] = token;
+
         final message = jsonResponse['message'] as String;
-        print('Usuário cadastrado com sucesso');
+        print('Login realizado com sucesso');
         _showSnackBarMessage(context, message, backgroundColor: Colors.green);
+        // Entrar no sistema
+        html.window.location.reload();
       } else {
         final errorMessage = jsonResponse['erro'] as String;
-        print('Erro ao cadastrar usuário: $errorMessage');
+        print('Erro durante o login: $errorMessage');
         _showSnackBarMessage(context, errorMessage,
             backgroundColor: Colors.red);
       }
@@ -84,7 +78,7 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
       appBar: AppBar(
         backgroundColor: Colors.deepPurple,
         title: const Text(
-          'Cadastro de Usuário',
+          'Login',
           style: TextStyle(color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
@@ -102,22 +96,6 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  TextFormField(
-                    controller: _nomeController,
-                    decoration: const InputDecoration(
-                      labelText: 'Nome',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.person),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 20),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor, insira um nome';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: screenHeight * 0.02),
                   TextFormField(
                     controller: _emailController,
                     decoration: const InputDecoration(
@@ -141,7 +119,7 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
                   SizedBox(height: screenHeight * 0.02),
                   TextFormField(
                     controller: _senhaController,
-                    obscureText: _obscurePassword, // Toggle password visibility
+                    obscureText: _obscurePassword,
                     decoration: InputDecoration(
                       labelText: 'Senha',
                       border: OutlineInputBorder(),
@@ -160,25 +138,6 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
                       if (value == null || value.isEmpty) {
                         return 'Por favor, insira uma senha';
                       }
-                      // Additional password validation can be added here
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: screenHeight * 0.02),
-                  TextFormField(
-                    controller: _confirmSenhaController,
-                    obscureText: _obscurePassword, // Toggle password visibility
-                    decoration: InputDecoration(
-                      labelText: 'Confirmar Senha',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.lock),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 20),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor, confirme a senha';
-                      }
-                      // Additional password validation can be added here
                       return null;
                     },
                   ),
@@ -186,11 +145,29 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
                   ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        _cadastrarUsuario();
+                        _realizarLogin();
                       }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.deepPurple,
+                      padding:
+                          EdgeInsets.symmetric(vertical: screenHeight * 0.02),
+                    ),
+                    child: const Text(
+                      'Entrar',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.02),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/cadastroUsuario');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color.fromARGB(255, 188, 118, 235),
                       padding:
                           EdgeInsets.symmetric(vertical: screenHeight * 0.02),
                     ),

@@ -8,6 +8,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '../variaveis.env') });
 const rotaUsuario = require('./rotas/rotaUsuario');
 const rotaAtividade = require('./rotas/rotaAtividade');
 const rotaUsuarioAtividade = require('./rotas/rotaUsuarioAtividade');
+const rotaLogin= require('./rotas/rotaLogin');
 
 
 const app = express();
@@ -24,6 +25,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 //Rotas do sistema
+app.use(rotaLogin);
 app.use(rotaUsuario);
 app.use(rotaAtividade);
 app.use(rotaUsuarioAtividade);

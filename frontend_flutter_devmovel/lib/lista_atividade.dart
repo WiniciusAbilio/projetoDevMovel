@@ -251,8 +251,6 @@ class _ListaAtividadeScreenState extends State<ListaAtividadeScreen> {
         TextEditingController(text: atividade.titulo);
     TextEditingController descricaoController =
         TextEditingController(text: atividade.descricao);
-    TextEditingController dataController =
-        TextEditingController(text: atividade.data.toIso8601String());
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,64 +271,16 @@ class _ListaAtividadeScreenState extends State<ListaAtividadeScreen> {
         ),
         TextButton(
           onPressed: () async {
-            final selectedDate = await showDialog<DateTime>(
+            final selectedDate = await showDatePicker(
               context: context,
-              builder: (context) {
-                DateTime selectedDate = atividade.data;
-                return AlertDialog(
-                  title: Text('Selecione a data'),
-                  content: SizedBox(
-                    width: 200,
-                    height: 200,
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: StatefulBuilder(
-                            builder:
-                                (BuildContext context, StateSetter setState) {
-                              return CalendarDatePicker(
-                                initialDate: atividade.data,
-                                firstDate: DateTime(2000),
-                                lastDate: DateTime(2100),
-                                onDateChanged: (date) {
-                                  setState(() {
-                                    selectedDate = date;
-                                  });
-                                },
-                              );
-                            },
-                          ),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context, selectedDate);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.deepPurple,
-                          ),
-                          child: Text(
-                            'Selecionar',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+              initialDate: atividade.data,
+              firstDate: DateTime(2000),
+              lastDate: DateTime(2100),
             );
 
             if (selectedDate != null) {
               setState(() {
                 atividade.atualizarData(selectedDate);
-                String formattedDay =
-                    selectedDate.day.toString().padLeft(2, '0');
-                String formattedMonth =
-                    selectedDate.month.toString().padLeft(2, '0');
-                String formattedYear = selectedDate.year.toString();
-                dataController.text =
-                    '$formattedDay/$formattedMonth/$formattedYear';
               });
             }
           },
