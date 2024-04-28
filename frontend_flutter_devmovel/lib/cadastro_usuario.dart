@@ -1,11 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class CadastroUsuarioScreen extends StatefulWidget {
-  const CadastroUsuarioScreen({super.key});
+  const CadastroUsuarioScreen({Key? key}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _CadastroUsuarioScreenState createState() => _CadastroUsuarioScreenState();
 }
 
@@ -14,11 +15,37 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
   final _nomeController = TextEditingController();
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
+  final _confirmSenhaController =
+      TextEditingController(); // New controller for confirm password
+
+  bool _obscurePassword = true; // To toggle password visibility
+
+  void _togglePasswordVisibility() {
+    setState(() {
+      _obscurePassword = !_obscurePassword;
+    });
+  }
+
+  void _showSnackBarMessage(BuildContext context, String message,
+      {Color backgroundColor = Colors.red}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: backgroundColor,
+      ),
+    );
+  }
 
   Future<void> _cadastrarUsuario() async {
     final nome = _nomeController.text;
     final email = _emailController.text;
     final senha = _senhaController.text;
+    final confirmSenha = _confirmSenhaController.text;
+
+    if (senha != confirmSenha) {
+      _showSnackBarMessage(context, "As senhas não coincidem");
+      return;
+    }
 
     try {
       final response = await http.post(
@@ -26,17 +53,23 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
         body: {'nome': nome, 'email': email, 'senha': senha},
       );
 
+      final jsonResponse = json.decode(response.body);
+
       // Verificar o status da resposta
       if (response.statusCode == 200) {
-        // Sucesso
-        print('Usuário cadastrado com sucesso');
+        final message = jsonResponse['message'] as String;
+        print('Usuário vinculado à atividade com sucesso');
+        _showSnackBarMessage(context, message, backgroundColor: Colors.green);
       } else {
-        // Erro
-        print('Erro ao cadastrar usuário: ${response.body}');
+        final errorMessage = jsonResponse['erro'] as String;
+        print('Erro ao vincular usuário à atividade: $errorMessage');
+        _showSnackBarMessage(context, errorMessage,
+            backgroundColor: Colors.red);
       }
     } catch (e) {
-      // Tratamento de exceções
       print('Erro durante a solicitação: $e');
+      _showSnackBarMessage(context, 'Erro durante a solicitação: $e',
+          backgroundColor: Colors.red);
     }
   }
 
@@ -106,17 +139,44 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
                   SizedBox(height: screenHeight * 0.02),
                   TextFormField(
                     controller: _senhaController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
+                    obscureText: _obscurePassword, // Toggle password visibility
+                    decoration: InputDecoration(
                       labelText: 'Senha',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.lock),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        ),
+                        onPressed: _togglePasswordVisibility,
+                      ),
                       contentPadding: EdgeInsets.symmetric(horizontal: 20),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Por favor, insira uma senha';
                       }
+                      // Additional password validation can be added here
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: screenHeight * 0.02),
+                  TextFormField(
+                    controller: _confirmSenhaController,
+                    obscureText: _obscurePassword, // Toggle password visibility
+                    decoration: InputDecoration(
+                      labelText: 'Confirmar Senha',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.lock),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 20),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor, confirme a senha';
+                      }
+                      // Additional password validation can be added here
                       return null;
                     },
                   ),

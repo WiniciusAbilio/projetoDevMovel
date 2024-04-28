@@ -56,6 +56,17 @@ class _CadastroUsuarioAtividadeScreenState
     }
   }
 
+  void _showSnackBarMessage(BuildContext context, String message,
+      {Color backgroundColor = Colors.red}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: backgroundColor,
+      ),
+    );
+  }
+
+
   Future<void> _vincularUsuarioAtividade() async {
     if (_formKey.currentState!.validate()) {
       try {
@@ -69,70 +80,22 @@ class _CadastroUsuarioAtividadeScreenState
           },
         );
 
-        // Verificar o status da resposta
-        if (response.statusCode == 200) {
-          // Sucesso
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text('Sucesso'),
-                content: Text('Usuário vinculado à atividade com sucesso'),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('OK'),
-                  ),
-                ],
-              );
-            },
-          );
-          setState(() {
-            _message = '';
-          });
-        } else {
-          // Erro
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Erro'),
-                content: Text(
-                    'Erro ao vincular usuário à atividade: ${response.body}'),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('OK'),
-                  ),
-                ],
-              );
-            },
-          );
-        }
-      } catch (e) {
-        // Tratamento de exceções
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Erro'),
-              content: Text('Erro durante a solicitação: $e'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
+       final jsonResponse = json.decode(response.body);
+
+      // Verificar o status da resposta
+      if (response.statusCode == 200) {
+        final message = jsonResponse['message'] as String;
+        print('Usuário vinculado à atividade com sucesso');
+        _showSnackBarMessage(context, message, backgroundColor: Colors.green);
+      } else {
+        final errorMessage = jsonResponse['erro'] as String;
+        print('Erro ao vincular usuário à atividade: $errorMessage');
+        _showSnackBarMessage(context, errorMessage, backgroundColor: Colors.red);
       }
+    } catch (e) {
+      print('Erro durante a solicitação: $e');
+      _showSnackBarMessage(context, 'Erro durante a solicitação: $e', backgroundColor: Colors.red);
+    }
     }
   }
 

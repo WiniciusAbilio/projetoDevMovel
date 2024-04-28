@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -68,6 +70,16 @@ class _CadastroAtividadeScreenState extends State<CadastroAtividadeScreen> {
     });
   }
 
+    void _showSnackBarMessage(BuildContext context, String message,
+      {Color backgroundColor = Colors.red}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: backgroundColor,
+      ),
+    );
+  }
+
   Future<void> _cadastrarAtividade() async {
     final titulo = _tituloController.text;
     final descricao = _descricaoController.text;
@@ -76,26 +88,32 @@ class _CadastroAtividadeScreenState extends State<CadastroAtividadeScreen> {
     try {
       final response = await http.post(
         Uri.parse('http://localhost:3010/api/atividade'),
-        body: {
-          'titulo': titulo,
-          'descricao': descricao,
-          'data': dataEntrega
-        },
+        body: {'titulo': titulo, 'descricao': descricao, 'data': dataEntrega},
       );
+
+      final jsonResponse = json.decode(response.body);
 
       // Verificar o status da resposta
       if (response.statusCode == 200) {
         // Sucesso
-        print('Atividade cadastrada com sucesso');
+        final message = jsonResponse['message'] as String;
+        print('Usuário cadastrado com sucesso');
+        _showSnackBarMessage(context, message, backgroundColor: Colors.green);
       } else {
         // Erro
-        print('Erro ao cadastrar atividade: ${response.body}');
+        final errorMessage = jsonResponse['erro'] as String;
+        print('Erro ao cadastrar atividade: $errorMessage');
+        _showSnackBarMessage(context, errorMessage,
+            backgroundColor: Colors.red);
       }
     } catch (e) {
       // Tratamento de exceções
-      print('Erro durante a solicitação: $e');
+      final errorMessage = 'Erro durante a solicitação: $e';
+      _showSnackBarMessage(context, errorMessage, backgroundColor: Colors.red);
+      print(errorMessage);
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -165,9 +183,12 @@ class _CadastroAtividadeScreenState extends State<CadastroAtividadeScreen> {
                         child: TextFormField(
                           controller: _dataEntregaController,
                           readOnly: true, // Make the field read-only
-                          onTap: () => _selectDateTime(context), // Open date picker on tap
+                          onTap: () => _selectDateTime(
+                              context), // Open date picker on tap
                           style: TextStyle(
-                              color: _dataEntregaError ? Colors.red : Colors.black),
+                              color: _dataEntregaError
+                                  ? Colors.red
+                                  : Colors.black),
                           decoration: InputDecoration(
                             labelText: 'Data de Entrega',
                             labelStyle: const TextStyle(color: Colors.black),
@@ -187,7 +208,8 @@ class _CadastroAtividadeScreenState extends State<CadastroAtividadeScreen> {
                       setState(() {
                         _dataEntregaError = _dataEntregaController.text.isEmpty;
                       });
-                      if (_formKey.currentState!.validate() && !_dataEntregaError) {
+                      if (_formKey.currentState!.validate() &&
+                          !_dataEntregaError) {
                         _cadastrarAtividade();
                       }
                     },

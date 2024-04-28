@@ -212,13 +212,18 @@ class _ListaAtividadeScreenState extends State<ListaAtividadeScreen> {
   }
 
   Widget _buildStaticAtividade(Atividade atividade) {
+    String formattedDay = atividade.data.day.toString().padLeft(2, '0');
+    String formattedMonth = atividade.data.month.toString().padLeft(2, '0');
+    String formattedYear = atividade.data.year.toString();
+    String formattedDate = '$formattedDay/$formattedMonth/$formattedYear';
+
     return ListTile(
       title: Text(atividade.titulo),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(atividade.descricao),
-          Text('Data: ${atividade.data}'),
+          Text('Data: $formattedDate'),
         ],
       ),
       trailing: Wrap(
@@ -319,13 +324,18 @@ class _ListaAtividadeScreenState extends State<ListaAtividadeScreen> {
             if (selectedDate != null) {
               setState(() {
                 atividade.atualizarData(selectedDate);
-                dataController.text = selectedDate
-                    .toString(); // Exemplo de formatação simples, pode ser ajustado conforme necessário
+                String formattedDay =
+                    selectedDate.day.toString().padLeft(2, '0');
+                String formattedMonth =
+                    selectedDate.month.toString().padLeft(2, '0');
+                String formattedYear = selectedDate.year.toString();
+                dataController.text =
+                    '$formattedDay/$formattedMonth/$formattedYear';
               });
             }
           },
           child: Text(
-            'Data: ${atividade.data.day}/${atividade.data.month}/${atividade.data.year}',
+            'Data: ${atividade.data.day.toString().padLeft(2, '0')}/${atividade.data.month.toString().padLeft(2, '0')}/${atividade.data.year}',
             style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
           ),
         ),

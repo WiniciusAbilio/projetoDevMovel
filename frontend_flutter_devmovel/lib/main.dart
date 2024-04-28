@@ -3,7 +3,8 @@ import 'cadastro_usuario.dart' as usuario;
 import 'cadastro_atividade.dart' as atividade;
 import 'cadastro_usuario_atividade.dart' as usuario_atividade;
 import 'lista_usuario.dart' as lista_usuario;
-import 'lista_atividade.dart' as lista_atividade; // Importando lista_atividade.dart
+import 'lista_atividade.dart' as lista_atividade;
+import 'lista_usuario_atividade.dart' as lista_usuario_atividade; // Importando lista_usuario_atividade.dart
 
 void main() {
   runApp(const MyApp());
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
         '/cadastroUsuarioAtividade': (context) => const usuario_atividade.CadastroUsuarioAtividadeScreen(), // Definindo a rota para a tela de cadastro de usuário atividade
         '/listaUsuario': (context) => const lista_usuario.ListaUsuarioScreen(), // Definindo a rota para a tela de lista de usuários
         '/listaAtividade': (context) => const lista_atividade.ListaAtividadeScreen(), // Adicionando a rota para a tela de lista de atividades
+        '/listaUsuarioAtividade': (context) => const lista_usuario_atividade.ListaUsuarioAtividadeScreen(), // Adicionando a rota para a tela de lista de usuários atividades
       },
     );
   }
@@ -94,6 +96,13 @@ class MyHomePage extends StatelessWidget {
               title: const Text('Lista de Atividades'),
               onTap: () {
                 Navigator.pushNamed(context, '/listaAtividade'); // Navegar para a tela de lista de atividades ao clicar no item do drawer
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.list), // Ícone de lista de usuários atividades
+              title: const Text('Lista de Usuários Atividades'),
+              onTap: () {
+                Navigator.pushNamed(context, '/listaUsuarioAtividade'); // Navegar para a tela de lista de usuários atividades ao clicar no item do drawer
               },
             ),
           ],
