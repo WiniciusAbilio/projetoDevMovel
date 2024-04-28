@@ -20,7 +20,7 @@ router.get('/api/usuario', (req, res) => {
         });
     } catch (error) {
         console.error('Erro ao processar requisição:', error);
-        res.status(500).send('Erro ao processar requisição');
+        res.status(500).json({ erro: 'Erro ao processar requisição' });
     }
 });
 
@@ -37,13 +37,13 @@ router.get('/api/usuario/:id', (req, res) => {
                 if (resultados.length > 0) {
                     res.status(200).json(resultados[0]);
                 } else {
-                    res.status(404).send('Usuário não encontrado');
+                    res.status(404).json({ erro: 'Usuário não encontrado' });
                 }
             }
         });
     } catch (error) {
         console.error('Erro ao processar requisição:', error);
-        res.status(500).send('Erro ao processar requisição');
+        res.status(500).json({ erro: 'Erro ao processar requisição' });
     }
 });
 
@@ -58,12 +58,12 @@ router.post('/api/usuario', (req, res) => {
                 res.status(500).json({ erro: error.sqlMessage });
             } else {
                 console.log('Novo usuário criado com sucesso');
-                res.status(200).send('Novo usuário criado com sucesso');
+                res.status(200).json({ message: 'Novo usuário criado com sucesso' });
             }
         });
     } catch (error) {
         console.error('Erro ao processar requisição:', error);
-        res.status(500).send('Erro ao processar requisição');
+        res.status(500).json({ erro: 'Erro ao processar requisição' });
     }
 });
 
@@ -72,24 +72,36 @@ router.put('/api/usuario/:id', (req, res) => {
     try {
         const { id } = req.params;
         const { nome, email, senha } = req.body;
-        const sql = 'UPDATE Usuario SET NOME = ?, EMAIL = ?, SENHA = ? WHERE ID_USUARIO = ?';
-        conexaoMySql.query(sql, [nome, email, senha, id], (error, resultados) => {
+        let sql;
+        let params;
+
+        // Verifica se a senha foi fornecida e ajusta a consulta SQL e os parâmetros em conformidade
+        if (senha) {
+            sql = 'UPDATE Usuario SET NOME = ?, EMAIL = ?, SENHA = ? WHERE ID_USUARIO = ?';
+            params = [nome, email, senha, id];
+        } else {
+            sql = 'UPDATE Usuario SET NOME = ?, EMAIL = ? WHERE ID_USUARIO = ?';
+            params = [nome, email, id];
+        }
+
+        conexaoMySql.query(sql, params, (error, resultados) => {
             if (error) {
                 console.error('Erro ao atualizar usuário:', error.sqlMessage);
                 res.status(500).json({ erro: error.sqlMessage });
             } else {
                 if (resultados.affectedRows > 0) {
-                    res.status(200).send('Usuário atualizado com sucesso');
+                    res.status(200).json({ message: 'Usuário atualizado com sucesso' });
                 } else {
-                    res.status(404).send('Usuário não encontrado');
+                    res.status(404).json({ erro: 'Usuário não encontrado' });
                 }
             }
         });
     } catch (error) {
         console.error('Erro ao processar requisição:', error);
-        res.status(500).send('Erro ao processar requisição');
+        res.status(500).json({ erro: 'Erro ao processar requisição' });
     }
 });
+
 
 // Rota para excluir um usuário
 router.delete('/api/usuario/:id', (req, res) => {
@@ -103,15 +115,15 @@ router.delete('/api/usuario/:id', (req, res) => {
                 res.status(500).json({ erro: error.sqlMessage });
             } else {
                 if (resultados.affectedRows > 0) {
-                    res.status(200).send('Usuário excluído com sucesso');
+                    res.status(200).json({ message: 'Usuário excluído com sucesso' });
                 } else {
-                    res.status(404).send('Usuário não encontrado');
+                    res.status(404).json({ erro: 'Usuário não encontrado' });
                 }
             }
         });
     } catch (error) {
         console.error('Erro ao processar requisição:', error);
-        res.status(500).send('Erro ao processar requisição');
+        res.status(500).json({ erro: 'Erro ao processar requisição' });
     }
 });
 
