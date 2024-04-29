@@ -117,73 +117,74 @@ class MyHomePage extends StatelessWidget {
         iconTheme: const IconThemeData(color: Colors.white),
         toolbarHeight: 100,
       ),
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.deepPurple,
-              ),
-              child: Center(
-                child: Text(
-                  'Opções',
-                  style: TextStyle(fontSize: 24, color: Colors.white),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.person_add),
+                  title: const Text('Cadastrar Usuário'),
+                  onTap: () {
+                    Navigator.pushNamed(context, '/cadastroUsuario');
+                  },
                 ),
               ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.person_add),
-              title: const Text('Cadastrar Usuário'),
-              onTap: () {
-                Navigator.pushNamed(context, '/cadastroUsuario');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.add_circle),
-              title: const Text('Cadastrar Atividade'),
-              onTap: () {
-                Navigator.pushNamed(context, '/cadastroAtividade');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.group_add),
-              title: const Text('Cadastrar Usuário Atividade'),
-              onTap: () {
-                Navigator.pushNamed(context, '/cadastroUsuarioAtividade');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.list),
-              title: const Text('Lista de Usuários'),
-              onTap: () {
-                Navigator.pushNamed(context, '/listaUsuario');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.list),
-              title: const Text('Lista de Atividades'),
-              onTap: () {
-                Navigator.pushNamed(context, '/listaAtividade');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.list),
-              title: const Text('Lista de Usuários Atividades'),
-              onTap: () {
-                Navigator.pushNamed(context, '/listaUsuarioAtividade');
-              },
-            ),
-            ListTile(
-                leading: const Icon(Icons.exit_to_app),
-                title: const Text('Sair'),
-                onTap: () => _logout(context)),
-          ],
-        ),
-      ),
-      body: const Center(
-        child: Text(
-          'Seja bem vindo!!!',
-          style: TextStyle(fontSize: 24),
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.add_circle),
+                  title: const Text('Cadastrar Atividade'),
+                  onTap: () {
+                    Navigator.pushNamed(context, '/cadastroAtividade');
+                  },
+                ),
+              ),
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.group_add),
+                  title: const Text('Cadastrar Usuário Atividade'),
+                  onTap: () {
+                    Navigator.pushNamed(context, '/cadastroUsuarioAtividade');
+                  },
+                ),
+              ),
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.list),
+                  title: const Text('Lista de Usuários'),
+                  onTap: () {
+                    Navigator.pushNamed(context, '/listaUsuario');
+                  },
+                ),
+              ),
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.list),
+                  title: const Text('Lista de Atividades'),
+                  onTap: () {
+                    Navigator.pushNamed(context, '/listaAtividade');
+                  },
+                ),
+              ),
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.list),
+                  title: const Text('Lista de Usuários Atividades'),
+                  onTap: () {
+                    Navigator.pushNamed(context, '/listaUsuarioAtividade');
+                  },
+                ),
+              ),
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.exit_to_app),
+                  title: const Text('Sair'),
+                  onTap: () => _logout(context),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
